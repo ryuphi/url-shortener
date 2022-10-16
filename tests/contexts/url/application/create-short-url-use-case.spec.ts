@@ -67,6 +67,7 @@ describe('feature: create short 1url', () => {
 
     expect(shortUrl.key).toMatch(/^[0-9a-zA-Z]+$/);
     expect(shortUrl.key).not.toBe('100000000');
+    expect(shortUrl.key).toBe('6LAze');
   });
 
   it('should persist short url in storage', async () => {
