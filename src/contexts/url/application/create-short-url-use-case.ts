@@ -1,11 +1,19 @@
-import { ShortUrl } from '../domain/short-url';
+import { ShortUrl } from '../domain/short-url/short-url';
 import { KeyGenerator } from '../domain/key-generator/key-generator';
+import { ShortUrlRepository } from '../domain/short-url/short-url-repository';
 
 export class CreateShortUrlUseCase {
-  constructor(private keyGenerator: KeyGenerator) {}
+  constructor(
+    private keyGenerator: KeyGenerator,
+    private shortUrlRepository: ShortUrlRepository
+  ) {}
 
-  execute(longUrl: string): ShortUrl {
+  async execute(longUrl: string): Promise<ShortUrl> {
     const key = this.keyGenerator.generate();
-    return new ShortUrl(key, longUrl, true);
+    const shorUrl = new ShortUrl(key, longUrl, true);
+
+    await this.shortUrlRepository.save(shorUrl);
+
+    return shorUrl;
   }
 }
