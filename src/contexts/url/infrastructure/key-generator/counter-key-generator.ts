@@ -1,4 +1,4 @@
-import { KeyGenerator } from '../../domain/key-generator';
+import { KeyGenerator } from '../../domain/key-generator/key-generator';
 
 export class CounterKeyGenerator implements KeyGenerator {
   counter = 100000000;
