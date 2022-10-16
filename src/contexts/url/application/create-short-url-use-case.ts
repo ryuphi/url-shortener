@@ -1,5 +1,5 @@
 import { ShortUrl } from '../domain/short-url';
-import { KeyGenerator } from '../domain/key-generator';
+import { KeyGenerator } from '../domain/key-generator/key-generator';
 
 export class CreateShortUrlUseCase {
   constructor(private keyGenerator: KeyGenerator) {}
