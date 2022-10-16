@@ -21,4 +21,15 @@ describe('feature: create short url', () => {
 
     expect(shortUrl.key).toBeDefined();
   });
+
+  it('create different short url from same long url', () => {
+    const useCase = new CreateShortUrlUseCase();
+    const longUrl = 'https://www.google.com/search?q=kittyies';
+    const longUrl2 = 'https://www.google.com/search?q=kittyies';
+
+    const shortUrl = useCase.execute(longUrl);
+    const shortUrl2 = useCase.execute(longUrl2);
+
+    expect(shortUrl.key).not.toBe(shortUrl2.key);
+  });
 });
