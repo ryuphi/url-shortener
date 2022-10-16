@@ -1,4 +1,4 @@
-import { CounterKeyGenerator } from '../../../../src/contexts/url/infrastructure/key-generator/counter-key-generator';
+import { CounterKeyGenerator } from '../../../../../src/contexts/url/infrastructure/key-generator/counter-key-generator';
 
 describe('CounterKeyGenerator', () => {
   let keyGenerator: CounterKeyGenerator;
