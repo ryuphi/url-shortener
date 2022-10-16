@@ -83,4 +83,13 @@ describe('feature: create short 1url', () => {
     expect(persistedShortUrl).toBeDefined();
     expect(persistedShortUrl).toBe(shortUrl);
   });
+
+  it('should not persist short url in storage if long url is invalid', async () => {
+    const longUrl = 'invalid url';
+    try {
+      await useCase.execute(longUrl);
+    } catch (error) {
+      expect((error as Error).message).toBe('Invalid long url');
+    }
+  });
 });
