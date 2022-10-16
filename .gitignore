@@ -1,0 +1,36 @@
+node_modules/
+dist/
+.tmp
+logs/
+data
+test-results.xml
+
+
+.fleet
+.idea
+.vscode
+
+## OSX
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+__MACOSX/
+
+# Thumbnails
+._*
+
+## Linux
+*~
+
+## Windows
+# Windows thumbnail cache files
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+
+# Dump file
+*.stackdump
+
+# Folder config file
+[Dd]esktop.ini
