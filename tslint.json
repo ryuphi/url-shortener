@@ -5,9 +5,15 @@
     "adjacent-overload-signatures": true,
     "curly": true,
     "eofline": true,
-    "align": [true, "parameters"],
+    "align": [
+      true,
+      "parameters"
+    ],
     "class-name": true,
-    "indent": [true, "spaces"],
+    "indent": [
+      true,
+      "spaces"
+    ],
     "no-angle-bracket-type-assertion": true,
     "ter-max-len": [
       true,
@@ -20,7 +26,10 @@
         "ignoreStrings": true
       }
     ],
-    "no-consecutive-blank-lines": [true, 1],
+    "no-consecutive-blank-lines": [
+      true,
+      1
+    ],
     "member-access": false,
     "no-trailing-whitespace": true,
     "no-bitwise": true,
@@ -40,9 +49,15 @@
       }
     ],
     "prefer-method-signature": true,
-    "arrow-return-shorthand": [true, "multiline"],
+    "arrow-return-shorthand": [
+      true,
+      "multiline"
+    ],
     "no-duplicate-variable": true,
-    "no-inferrable-types": [true, "ignore-params"],
+    "no-inferrable-types": [
+      true,
+      "ignore-params"
+    ],
     "no-var-keyword": true,
     "variable-name": [
       true,
@@ -57,9 +72,23 @@
     "triple-equals": true,
     "no-use-before-declare": false,
     "jsdoc-format": true,
-    "one-line": [true, "check-else", "check-whitespace", "check-open-brace"],
-    "quotemark": [true, "single", "avoid-escape", "jsx-double"],
-    "semicolon": [true, "always", "ignore-bound-class-methods"],
+    "one-line": [
+      true,
+      "check-else",
+      "check-whitespace",
+      "check-open-brace"
+    ],
+    "quotemark": [
+      true,
+      "single",
+      "avoid-escape",
+      "jsx-double"
+    ],
+    "semicolon": [
+      true,
+      "always",
+      "ignore-bound-class-methods"
+    ],
     "typedef-whitespace": [
       true,
       {
