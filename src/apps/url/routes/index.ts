@@ -1,58 +1,49 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { CreateShortUrlUseCase } from '../../../contexts/url/application/create-short-url-use-case';
-import { Base62DecoratorKeyGenerator } from '../../../contexts/url/infrastructure/key-generator/base62-decorator-key-generator';
-import { SnowflakeKeyGenerator } from '../../../contexts/url/infrastructure/key-generator/snowflake-key-generator';
-import { InMemoryShortUrlRepository } from '../../../contexts/url/infrastructure/persistence/in-memory-short-url-repository';
 import httpStatus from 'http-status';
-
-const port =
-  process.env.NODE_ENV === 'test' ? 6001 : process.env.PORT || '3000';
-const baseUrl = `http://localhost:${port}`;
+import { container } from '../container';
+import { ShortUrlRepository } from '../../../contexts/url/domain/short-url/short-url-repository';
+import { KeyGenerator } from '../../../contexts/url/domain/key-generator/key-generator';
+import { FindOriginalUrlUseCase } from '../../../contexts/url/application/find-original-url-use-case';
+import {
+  CreateShortUrlRequest,
+  CreateShortUrlResponse,
+  FindOriginalUrlRequest
+} from './types';
 
 export const router = Router();
 
-const keyGenerator = new Base62DecoratorKeyGenerator(
-  new SnowflakeKeyGenerator()
+const keyGenerator = container.getService<KeyGenerator>(
+  'app.url.key-generator'
 );
-
-const repository = new InMemoryShortUrlRepository();
-const createShortUrlUserCase = new CreateShortUrlUseCase(
-  keyGenerator,
-  repository
-);
-
-type CreateShortUrlRequest = Request & {
-  body: {
-    url: string;
-  };
-};
-
-type CreateShortUrlResponse = {
-  shortUrl: string;
-};
+const shortUrlRepository =
+  container.getService<ShortUrlRepository>('app.url.repository');
 
 router.post(
   '/',
-  async (req: CreateShortUrlRequest, res: Response<CreateShortUrlResponse>) => {
+  async (req: CreateShortUrlRequest, res: CreateShortUrlResponse) => {
     const { url } = req.body;
+
+    const createShortUrlUserCase = new CreateShortUrlUseCase(
+      keyGenerator,
+      shortUrlRepository
+    );
+
     const shortUrl = await createShortUrlUserCase.execute(url);
-    return res
-      .status(httpStatus.CREATED)
-      .send({ shortUrl: `${baseUrl}/${shortUrl.key}` });
+    return res.status(httpStatus.CREATED).send({
+      shortUrl: `${container.getParam('app.baseUrl')}/${shortUrl.key}`
+    });
   }
 );
 
-type FindOriginalUrlRequest = Request & {
-  params: {
-    key: string;
-  };
-};
-
 router.get('/:key', async (req: FindOriginalUrlRequest, res: Response) => {
   const { key } = req.params;
-  const shortUrl = await repository.findByKey(key);
-  if (shortUrl) {
-    return res.redirect(shortUrl.originalUrl);
+  const findOriginalUrlUseCase = new FindOriginalUrlUseCase(shortUrlRepository);
+
+  const originalUrl = await findOriginalUrlUseCase.execute(key);
+
+  if (originalUrl) {
+    return res.redirect(originalUrl);
   }
   return res.status(httpStatus.NOT_FOUND).send();
 });
