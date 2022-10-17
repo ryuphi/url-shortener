@@ -2,22 +2,23 @@ import { KeyGenerator } from '../../domain/key-generator/key-generator';
 import { Worker } from 'snowflake-uuid';
 
 export class SnowflakeKeyGenerator implements KeyGenerator {
-  worker: Worker;
-  delay = 1; // 1ms delay to avoid collisions... this is only because nodejs work until millisecond precision..
+  // @ts-ignore
+  localCounter: bigint = 0n;
   constructor(
     private workerId?: number | undefined,
     private dataCenterId?: number | undefined
-  ) {
-    this.worker = new Worker(this.workerId, this.dataCenterId);
-  }
+  ) {}
 
   async generate(): Promise<string> {
-    const currentTimestamp = Date.now();
-    if (this.worker.lastTimestamp === BigInt(currentTimestamp)) {
-      return new Promise(resolve =>
-        setTimeout(() => resolve(this.worker.nextId().toString()), this.delay)
-      );
-    }
-    return this.worker.nextId().toString();
+    // it's a bit hacky, to use the snowflake-uuid library to generate a snowflake id
+    // when you have many calls to this function in the same millisecond, the localCounter
+    // will be incremented, and the snowflake id will be unique
+    this.localCounter++;
+
+    const worker = new Worker(this.workerId, this.dataCenterId, {
+      sequence: this.localCounter
+    });
+
+    return worker.nextId().toString();
   }
 }

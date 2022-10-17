@@ -7,6 +7,7 @@ describe('InMemoryShortUrlRepository', () => {
   beforeEach(() => {
     repository = new InMemoryShortUrlRepository();
   });
+
   it('should save a short url', async () => {
     const shortUrl = new ShortUrl(
       '123456',
