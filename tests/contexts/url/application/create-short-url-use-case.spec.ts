@@ -4,92 +4,107 @@ import { CounterKeyGenerator } from '../../../../src/contexts/url/infrastructure
 import { Base62DecoratorKeyGenerator } from '../../../../src/contexts/url/infrastructure/key-generator/base62-decorator-key-generator';
 import { ShortUrlRepository } from '../../../../src/contexts/url/domain/short-url/short-url-repository';
 import { InMemoryShortUrlRepository } from '../../../../src/contexts/url/infrastructure/persistence/in-memory-short-url-repository';
+import { KeyGenerator } from '../../../../src/contexts/url/domain/key-generator/key-generator';
 
-describe('feature: create short 1url', () => {
-  let keyGenerator: CounterKeyGenerator;
-  let useCase: CreateShortUrlUseCase;
-  let shorUrlRepository: ShortUrlRepository;
+describe('CreateShortUrlUseCase', () => {
+  describe('With Basic CounterKeyGenerator', () => {
+    let keyGenerator: CounterKeyGenerator;
+    let useCase: CreateShortUrlUseCase;
+    let shorUrlRepository: ShortUrlRepository;
 
-  beforeEach(() => {
-    shorUrlRepository = new InMemoryShortUrlRepository();
-    keyGenerator = new CounterKeyGenerator();
-    useCase = new CreateShortUrlUseCase(keyGenerator, shorUrlRepository);
+    beforeEach(() => {
+      shorUrlRepository = new InMemoryShortUrlRepository();
+      keyGenerator = new CounterKeyGenerator();
+      useCase = new CreateShortUrlUseCase(keyGenerator, shorUrlRepository);
+    });
+
+    it('create short url from long url', async () => {
+      const longUrl = 'https://www.google.com/search?q=kittyies';
+
+      const shortUrl = await useCase.execute(longUrl);
+
+      expect(shortUrl).toBeInstanceOf(ShortUrl);
+      expect(shortUrl.originalUrl).toBe(longUrl);
+      expect(shortUrl.enabled).toBe(true);
+    });
+
+    it('create short url from long url return a short url with key', async () => {
+      const longUrl = 'https://www.google.com/search?q=kittyies';
+
+      const shortUrl = await useCase.execute(longUrl);
+
+      expect(shortUrl.key).toBeDefined();
+    });
+
+    it('create different short url from same long url', async () => {
+      const longUrl = 'https://www.google.com/search?q=kittyies';
+      const longUrl2 = 'https://www.google.com/search?q=kittyies';
+
+      const shortUrl = await useCase.execute(longUrl);
+      const shortUrl2 = await useCase.execute(longUrl2);
+
+      expect(shortUrl.key).not.toBe(shortUrl2.key);
+    });
+
+    it('create different short url from different long url', async () => {
+      const longUrl = 'https://www.google.com/search?q=kittyies';
+      const longUrl2 = 'https://www.google.com/search?q=puppies';
+
+      const shortUrl = await useCase.execute(longUrl);
+      const shortUrl2 = await useCase.execute(longUrl2);
+
+      expect(shortUrl.key).not.toBe(shortUrl2.key);
+    });
+
+    it('should persist short url in storage', async () => {
+      const longUrl = 'https://www.google.com/search?q=kittyies';
+
+      // first generated key is 100000000 with CounterKeyGenerator
+      const shortUrl = await useCase.execute(longUrl);
+
+      expect(shortUrl.key).toBe('100000000');
+
+      const persistedShortUrl = await shorUrlRepository.findByKey('100000000');
+
+      expect(persistedShortUrl).toBeDefined();
+      expect(persistedShortUrl).toBe(shortUrl);
+    });
+
+    it('should not persist short url in storage if long url is invalid', async () => {
+      const longUrl = 'invalid url';
+      try {
+        await useCase.execute(longUrl);
+      } catch (error) {
+        expect((error as Error).message).toBe('Invalid long url');
+      }
+    });
   });
 
-  it('create short url from long url', async () => {
-    const longUrl = 'https://www.google.com/search?q=kittyies';
+  describe('With Base62DecoratorKeyGenerator', () => {
+    let keyGenerator: KeyGenerator;
+    let decoratedKeyGenerator: KeyGenerator;
+    let shorUrlRepository: ShortUrlRepository;
+    let base62EncodedUseCase: CreateShortUrlUseCase;
 
-    const shortUrl = await useCase.execute(longUrl);
+    beforeEach(() => {
+      shorUrlRepository = new InMemoryShortUrlRepository();
+      keyGenerator = new CounterKeyGenerator();
+      decoratedKeyGenerator = new Base62DecoratorKeyGenerator(keyGenerator);
+      base62EncodedUseCase = new CreateShortUrlUseCase(
+        decoratedKeyGenerator,
+        shorUrlRepository
+      );
+    });
 
-    expect(shortUrl).toBeInstanceOf(ShortUrl);
-    expect(shortUrl.originalUrl).toBe(longUrl);
-    expect(shortUrl.enabled).toBe(true);
-  });
+    it('create short url with key encoded with base62', async () => {
+      const longUrl = 'https://www.google.com/search?q=kittyies';
 
-  it('create short url from long url return a short url with key', async () => {
-    const longUrl = 'https://www.google.com/search?q=kittyies';
+      // first generated key is 100000000 with CounterKeyGenerator
+      const shortUrl = await base62EncodedUseCase.execute(longUrl);
 
-    const shortUrl = await useCase.execute(longUrl);
-
-    expect(shortUrl.key).toBeDefined();
-  });
-
-  it('create different short url from same long url', async () => {
-    const longUrl = 'https://www.google.com/search?q=kittyies';
-    const longUrl2 = 'https://www.google.com/search?q=kittyies';
-
-    const shortUrl = await useCase.execute(longUrl);
-    const shortUrl2 = await useCase.execute(longUrl2);
-
-    expect(shortUrl.key).not.toBe(shortUrl2.key);
-  });
-
-  it('create different short url from different long url', async () => {
-    const longUrl = 'https://www.google.com/search?q=kittyies';
-    const longUrl2 = 'https://www.google.com/search?q=puppies';
-
-    const shortUrl = await useCase.execute(longUrl);
-    const shortUrl2 = await useCase.execute(longUrl2);
-
-    expect(shortUrl.key).not.toBe(shortUrl2.key);
-  });
-
-  it('create short url with key encoded with base62', async () => {
-    const longUrl = 'https://www.google.com/search?q=kittyies';
-
-    const useCaseDecoratedKeyGenerator = new CreateShortUrlUseCase(
-      new Base62DecoratorKeyGenerator(keyGenerator),
-      shorUrlRepository
-    );
-
-    // first generated key is 100000000 with CounterKeyGenerator
-    const shortUrl = await useCaseDecoratedKeyGenerator.execute(longUrl);
-
-    expect(shortUrl.key).toMatch(/^[0-9a-zA-Z]+$/);
-    expect(shortUrl.key).not.toBe('100000000');
-    expect(shortUrl.key).toBe('6LAze');
-  });
-
-  it('should persist short url in storage', async () => {
-    const longUrl = 'https://www.google.com/search?q=kittyies';
-
-    // first generated key is 100000000 with CounterKeyGenerator
-    const shortUrl = await useCase.execute(longUrl);
-
-    expect(shortUrl.key).toBe('100000000');
-
-    const persistedShortUrl = await shorUrlRepository.findByKey('100000000');
-
-    expect(persistedShortUrl).toBeDefined();
-    expect(persistedShortUrl).toBe(shortUrl);
-  });
-
-  it('should not persist short url in storage if long url is invalid', async () => {
-    const longUrl = 'invalid url';
-    try {
-      await useCase.execute(longUrl);
-    } catch (error) {
-      expect((error as Error).message).toBe('Invalid long url');
-    }
+      expect(shortUrl.key).toMatch(/^[0-9a-zA-Z]+$/);
+      expect(shortUrl.key).not.toBe('100000000');
+      expect(shortUrl.key).toBe('6LAze');
+    });
   });
 });
