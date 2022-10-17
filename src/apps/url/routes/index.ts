@@ -14,21 +14,27 @@ const keyGenerator = new Base62DecoratorKeyGenerator(
 );
 
 const repository = new InMemoryShortUrlRepository();
-const createShortUrlUserCase = new CreateShortUrlUseCase(keyGenerator, repository);
+const createShortUrlUserCase = new CreateShortUrlUseCase(
+  keyGenerator,
+  repository
+);
 
 type CreateShortUrlBody = {
   url: string;
 };
 
-type CreateShortUrlRequest = Request<any, any, CreateShortUrlBody>
+type CreateShortUrlRequest = Request<any, any, CreateShortUrlBody>;
 type CreateShortUrlResponse = {
-  shortUrl: string
-}
+  shortUrl: string;
+};
 
-router.post('/', async (req: CreateShortUrlRequest, res: Response<CreateShortUrlResponse>) => {
-  const {url} = req.body
-  const shortUrl = await createShortUrlUserCase.execute(url);
-  return res
-    .status(httpStatus.CREATED)
-    .send({ shortUrl: `${baseUrl}/${shortUrl.key}` });
-});
+router.post(
+  '/',
+  async (req: CreateShortUrlRequest, res: Response<CreateShortUrlResponse>) => {
+    const { url } = req.body;
+    const shortUrl = await createShortUrlUserCase.execute(url);
+    return res
+      .status(httpStatus.CREATED)
+      .send({ shortUrl: `${baseUrl}/${shortUrl.key}` });
+  }
+);
