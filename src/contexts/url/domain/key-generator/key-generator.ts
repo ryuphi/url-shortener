@@ -1,3 +1,3 @@
 export interface KeyGenerator {
-  generate(): string;
+  generate(): Promise<string>;
 }

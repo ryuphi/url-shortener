@@ -4,9 +4,9 @@ const CHARSET: Array<string> =
   '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 export class Base62DecoratorKeyGenerator extends KeyGeneratorDecorator {
-  generate(): string {
+  async generate(): Promise<string> {
     // encode to base62
-    let key = Number(super.generate());
+    let key = Number(await super.generate());
     let hash = '';
 
     while (key > 0) {

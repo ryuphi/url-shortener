@@ -7,19 +7,19 @@ describe('CounterKeyGenerator', () => {
     keyGenerator = new CounterKeyGenerator();
   });
 
-  it('generates a key', () => {
-    const key = keyGenerator.generate();
+  it('generates a key', async () => {
+    const key = await keyGenerator.generate();
     expect(key).toBeDefined();
   });
 
-  it('generates a key with 6 or more characters', () => {
-    const key = keyGenerator.generate();
+  it('generates a key with 6 or more characters', async () => {
+    const key = await keyGenerator.generate();
     expect(key.length).toBeGreaterThanOrEqual(6);
   });
 
-  it('generates unique keys for each call', () => {
-    const key = keyGenerator.generate();
-    const key2 = keyGenerator.generate();
+  it('generates unique keys for each call', async () => {
+    const key = await keyGenerator.generate();
+    const key2 = await keyGenerator.generate();
     expect(key).not.toBe(key2);
   });
 });

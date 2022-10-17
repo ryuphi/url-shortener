@@ -15,7 +15,7 @@ export class CreateShortUrlUseCase {
       throw new Error('Invalid long url');
     }
 
-    const key = this.keyGenerator.generate();
+    const key = await this.keyGenerator.generate();
     const shorUrl = new ShortUrl(key, longUrl, true);
 
     await this.shortUrlRepository.save(shorUrl);
