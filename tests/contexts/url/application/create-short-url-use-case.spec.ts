@@ -5,6 +5,7 @@ import { Base62DecoratorKeyGenerator } from '../../../../src/contexts/url/infras
 import { ShortUrlRepository } from '../../../../src/contexts/url/domain/short-url/short-url-repository';
 import { InMemoryShortUrlRepository } from '../../../../src/contexts/url/infrastructure/persistence/in-memory-short-url-repository';
 import { KeyGenerator } from '../../../../src/contexts/url/domain/key-generator/key-generator';
+import { SnowflakeKeyGenerator } from '../../../../src/contexts/url/infrastructure/key-generator/snowflake-key-generator';
 
 describe('CreateShortUrlUseCase', () => {
   describe('With Basic CounterKeyGenerator', () => {
@@ -105,6 +106,41 @@ describe('CreateShortUrlUseCase', () => {
       expect(shortUrl.key).toMatch(/^[0-9a-zA-Z]+$/);
       expect(shortUrl.key).not.toBe('100000000');
       expect(shortUrl.key).toBe('6LAze');
+    });
+  });
+
+  describe('With SnowflakeKeyGenerator', () => {
+    it('create short url with key encoded with snowflake', async () => {
+      const longUrl = 'https://www.google.com/search?q=kittyies';
+
+      const useCase = new CreateShortUrlUseCase(
+        new Base62DecoratorKeyGenerator(new SnowflakeKeyGenerator()),
+        new InMemoryShortUrlRepository()
+      );
+
+      const shortUrl = await useCase.execute(longUrl);
+
+      expect(shortUrl.key).toMatch(/^[0-9a-zA-Z]+$/);
+      expect(shortUrl.key).not.toBe('100000000');
+    });
+
+    it('create different short url from diffenrent use case', async () => {
+      const longUrl = 'https://www.google.com/search?q=kittyies';
+
+      const useCase = new CreateShortUrlUseCase(
+        new Base62DecoratorKeyGenerator(new SnowflakeKeyGenerator(0, 0)),
+        new InMemoryShortUrlRepository()
+      );
+
+      const useCase2 = new CreateShortUrlUseCase(
+        new Base62DecoratorKeyGenerator(new SnowflakeKeyGenerator(1, 0)),
+        new InMemoryShortUrlRepository()
+      );
+
+      const shortUrl = await useCase.execute(longUrl);
+      const shortUrl2 = await useCase2.execute(longUrl);
+
+      expect(shortUrl.key).not.toBe(shortUrl2.key);
     });
   });
 });
