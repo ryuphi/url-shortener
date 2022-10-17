@@ -21,8 +21,6 @@ describe('Feature: Create short url', () => {
         url: 'https://www.google.com/search?q=kittyies'
       });
 
-    console.log({ body, status });
-
     expect(status).toBe(httpStatus.CREATED);
     expect(body).toHaveProperty('shortUrl');
   });

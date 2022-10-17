@@ -35,7 +35,7 @@ export class Server {
         console.error(err);
         res
           .status(httpStatus.INTERNAL_SERVER_ERROR)
-          .send({ error: err.message });
+          .json({ error: err.message });
       }
     );
   }
@@ -43,8 +43,10 @@ export class Server {
   async listen(): Promise<void> {
     return new Promise(resolve => {
       this.httpServer = this.express.listen(this.port, () => {
-        console.log(`Server listening on port ${this.port}`);
-        console.log('Press CTRL-C to stop\n');
+        if (process.env.NODE_ENV === 'dev') {
+          console.log(`Server listening on port ${this.port}`);
+          console.log('Press CTRL-C to stop\n');
+        }
         resolve();
       });
     });
