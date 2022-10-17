@@ -28,4 +28,54 @@ describe('Feature: find original url', () => {
 
     expect(url).toBeNull();
   });
+
+  it('should persist in cached when found a url', async () => {
+    const repository = new InMemoryShortUrlRepository();
+    const originalUrl = 'https://www.google.com/search?q=kittyies';
+    const hashKey = 'hwerTysH9';
+
+    await repository.save({
+      key: hashKey,
+      originalUrl,
+      enabled: true
+    });
+
+    const cachedRepository = new InMemoryShortUrlRepository();
+
+    const findUseCase = new FindOriginalUrlUseCase(
+      repository,
+      cachedRepository
+    );
+
+    const url = await findUseCase.execute(hashKey);
+
+    expect(url).toBe(originalUrl);
+
+    const cachedUrl = await cachedRepository.findByKey(hashKey);
+    expect(cachedUrl).not.toBeNull();
+    expect(cachedUrl?.originalUrl).toBe(originalUrl);
+    expect(cachedUrl?.key).toBe(hashKey);
+  });
+
+  it('should retrieve from cache when found a url in cache', async () => {
+    const repository = new InMemoryShortUrlRepository();
+    const originalUrl = 'https://www.google.com/search?q=kittyies';
+    const hashKey = 'hwerTysH9';
+
+    const cachedRepository = new InMemoryShortUrlRepository();
+    await cachedRepository.save({
+      key: hashKey,
+      originalUrl,
+      enabled: true
+    });
+
+    const findUseCase = new FindOriginalUrlUseCase(
+      repository,
+      cachedRepository
+    );
+
+    const url = await findUseCase.execute(hashKey);
+
+    expect(url).toBe(originalUrl);
+  });
 });
