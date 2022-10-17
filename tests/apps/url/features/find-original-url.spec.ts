@@ -24,4 +24,12 @@ describe('Feature: Find original url', () => {
 
     await request(application.httpServer).get(`/${key}`).redirects(1);
   });
+
+  it('should return 404 when short url does not exist', async () => {
+    const { status } = await request(application.httpServer)
+      .get('/not-found')
+      .redirects(0);
+
+    expect(status).toBe(404);
+  });
 });
