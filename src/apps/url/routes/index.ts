@@ -21,11 +21,12 @@ const createShortUrlUserCase = new CreateShortUrlUseCase(
   repository
 );
 
-type CreateShortUrlBody = {
-  url: string;
+type CreateShortUrlRequest = Request & {
+  body: {
+    url: string;
+  };
 };
 
-type CreateShortUrlRequest = Request<any, any, CreateShortUrlBody>;
 type CreateShortUrlResponse = {
   shortUrl: string;
 };
@@ -41,7 +42,11 @@ router.post(
   }
 );
 
-type FindOriginalUrlRequest = Request<{ key: string }>;
+type FindOriginalUrlRequest = Request & {
+  params: {
+    key: string;
+  };
+};
 
 router.get('/:key', async (req: FindOriginalUrlRequest, res: Response) => {
   const { key } = req.params;

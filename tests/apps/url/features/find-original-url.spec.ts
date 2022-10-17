@@ -1,18 +1,18 @@
 import { UrlApp } from '../../../../src/apps/url/url-app';
 import request from 'supertest';
 
+let application: UrlApp;
+
+beforeAll(async () => {
+  application = new UrlApp();
+  await application.start('0');
+});
+
+afterAll(async () => {
+  await application.stop();
+});
+
 describe('Feature: Find original url', () => {
-  let application: UrlApp;
-
-  beforeAll(async () => {
-    application = new UrlApp();
-    await application.start();
-  });
-
-  afterAll(async () => {
-    await application.stop();
-  });
-
   it('should find original url and redirect to original url', async () => {
     const {
       body: { shortUrl }

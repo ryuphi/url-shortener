@@ -1,7 +1,8 @@
 import { UrlApp } from './url-app';
 
 try {
-  new UrlApp().start();
+  const port = process.env.PORT || '3000';
+  new UrlApp().start(port);
 } catch (e) {
   console.error(e);
   process.exit(1);
