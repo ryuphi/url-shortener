@@ -5,7 +5,9 @@ import { SnowflakeKeyGenerator } from '../../../contexts/url/infrastructure/key-
 import { InMemoryShortUrlRepository } from '../../../contexts/url/infrastructure/persistence/in-memory-short-url-repository';
 import httpStatus from 'http-status';
 
-const baseUrl = `http://localhost:${process.env.PORT}`;
+const port =
+  process.env.NODE_ENV === 'test' ? 6001 : process.env.PORT || '3000';
+const baseUrl = `http://localhost:${port}`;
 
 export const router = Router();
 
@@ -38,3 +40,14 @@ router.post(
       .send({ shortUrl: `${baseUrl}/${shortUrl.key}` });
   }
 );
+
+type FindOriginalUrlRequest = Request<{ key: string }>;
+
+router.get('/:key', async (req: FindOriginalUrlRequest, res: Response) => {
+  const { key } = req.params;
+  const shortUrl = await repository.findByKey(key);
+  if (shortUrl) {
+    return res.redirect(shortUrl.originalUrl);
+  }
+  return res.status(httpStatus.NOT_FOUND).send();
+});
