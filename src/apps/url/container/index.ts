@@ -28,11 +28,14 @@ class Container {
         new SimpleCacheClient<ShortUrl>()
       );
     } else {
-      shortUrlRepository = new MongoShortUrlRepository(
-        MongoClientFactory.createClient('short-url', {
-          url:
-            process.env.MONGO_URL || 'mongodb://localhost:27017/url-shortener'
-        })
+      shortUrlRepository = new CachedShortUrlRepository(
+        new MongoShortUrlRepository(
+          MongoClientFactory.createClient('short-url', {
+            url:
+              process.env.MONGO_URL || 'mongodb://localhost:27017/url-shortener'
+          })
+        ),
+        new SimpleCacheClient<ShortUrl>()
       );
     }
 
