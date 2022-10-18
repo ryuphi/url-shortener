@@ -1,5 +1,5 @@
-import { ShortUrl } from '../../domain/short-url/short-url';
-import { ShortUrlRepository } from '../../domain/short-url/short-url-repository';
+import { ShortUrl } from '../../../domain/short-url/short-url';
+import { ShortUrlRepository } from '../../../domain/short-url/short-url-repository';
 
 export class InMemoryShortUrlRepository implements ShortUrlRepository {
   private shortUrls: ShortUrl[] = [];

@@ -1,5 +1,5 @@
-import { ShortUrl } from '../../../../../src/contexts/url/domain/short-url/short-url';
-import { InMemoryShortUrlRepository } from '../../../../../src/contexts/url/infrastructure/persistence/in-memory-short-url-repository';
+import { ShortUrl } from '../../../../../../src/contexts/url/domain/short-url/short-url';
+import { InMemoryShortUrlRepository } from '../../../../../../src/contexts/url/infrastructure/persistence/in-memory/in-memory-short-url-repository';
 
 describe('InMemoryShortUrlRepository', () => {
   let repository: InMemoryShortUrlRepository;

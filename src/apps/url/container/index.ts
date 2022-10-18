@@ -1,4 +1,4 @@
-import { InMemoryShortUrlRepository } from '../../../contexts/url/infrastructure/persistence/in-memory-short-url-repository';
+import { InMemoryShortUrlRepository } from '../../../contexts/url/infrastructure/persistence/in-memory/in-memory-short-url-repository';
 import { Base62DecoratorKeyGenerator } from '../../../contexts/url/infrastructure/key-generator/base62-decorator-key-generator';
 import { SnowflakeKeyGenerator } from '../../../contexts/url/infrastructure/key-generator/snowflake-key-generator';
 import { MongoShortUrlRepository } from '../../../contexts/url/infrastructure/persistence/mongo/mongo-short-url-repository';

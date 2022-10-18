@@ -3,7 +3,7 @@ import { ShortUrl } from '../../../../src/contexts/url/domain/short-url/short-ur
 import { CounterKeyGenerator } from '../../../../src/contexts/url/infrastructure/key-generator/counter-key-generator';
 import { Base62DecoratorKeyGenerator } from '../../../../src/contexts/url/infrastructure/key-generator/base62-decorator-key-generator';
 import { ShortUrlRepository } from '../../../../src/contexts/url/domain/short-url/short-url-repository';
-import { InMemoryShortUrlRepository } from '../../../../src/contexts/url/infrastructure/persistence/in-memory-short-url-repository';
+import { InMemoryShortUrlRepository } from '../../../../src/contexts/url/infrastructure/persistence/in-memory/in-memory-short-url-repository';
 import { KeyGenerator } from '../../../../src/contexts/url/domain/key-generator/key-generator';
 import { SnowflakeKeyGenerator } from '../../../../src/contexts/url/infrastructure/key-generator/snowflake-key-generator';
 

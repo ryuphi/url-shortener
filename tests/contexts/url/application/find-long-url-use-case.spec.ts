@@ -1,4 +1,4 @@
-import { InMemoryShortUrlRepository } from '../../../../src/contexts/url/infrastructure/persistence/in-memory-short-url-repository';
+import { InMemoryShortUrlRepository } from '../../../../src/contexts/url/infrastructure/persistence/in-memory/in-memory-short-url-repository';
 import { FindOriginalUrlUseCase } from '../../../../src/contexts/url/application/find-original-url-use-case';
 
 describe('Feature: find original url', () => {
