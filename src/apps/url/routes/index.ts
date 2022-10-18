@@ -21,6 +21,10 @@ const keyGenerator = container.getService<KeyGenerator>(
 const shortUrlRepository =
   container.getService<ShortUrlRepository>('app.url.repository');
 
+const cachedShortUrlRepository = container.getService<ShortUrlRepository>(
+  'app.url.cached-repository'
+);
+
 router.post(
   '/',
   async (req: CreateShortUrlRequest, res: CreateShortUrlResponse) => {
@@ -28,7 +32,7 @@ router.post(
 
     const createShortUrlUserCase = new CreateShortUrlUseCase(
       keyGenerator,
-      shortUrlRepository
+      shortUrlRepository // no cached version...
     );
 
     const shortUrl = await createShortUrlUserCase.execute(url);
@@ -40,7 +44,9 @@ router.post(
 
 router.get('/:key', async (req: FindOriginalUrlRequest, res: Response) => {
   const { key } = req.params;
-  const findOriginalUrlUseCase = new FindOriginalUrlUseCase(shortUrlRepository);
+  const findOriginalUrlUseCase = new FindOriginalUrlUseCase(
+    cachedShortUrlRepository
+  );
 
   const originalUrl = await findOriginalUrlUseCase.execute(key);
 
@@ -57,7 +63,7 @@ router.put('/:key', async (req: UpdateShortUrlRequest, res: Response) => {
 
   if (shortUrl) {
     const updateOriginalUrlUseCase = new UpdateOriginalUrlUseCase(
-      shortUrlRepository
+      cachedShortUrlRepository
     );
     await updateOriginalUrlUseCase.execute(key, req.body);
     return res.status(httpStatus.OK).send();
