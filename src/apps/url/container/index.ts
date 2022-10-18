@@ -1,6 +1,4 @@
 import { InMemoryShortUrlRepository } from '../../../contexts/url/infrastructure/persistence/in-memory-short-url-repository';
-import { ShortUrlRepository } from '../../../contexts/url/domain/short-url/short-url-repository';
-import { KeyGenerator } from '../../../contexts/url/domain/key-generator/key-generator';
 import { Base62DecoratorKeyGenerator } from '../../../contexts/url/infrastructure/key-generator/base62-decorator-key-generator';
 import { SnowflakeKeyGenerator } from '../../../contexts/url/infrastructure/key-generator/snowflake-key-generator';
 
@@ -15,27 +13,14 @@ class Container {
   }
 
   private configRepository() {
-    let urlRepository: ShortUrlRepository;
-    if (process.env.NODE_ENV === 'test') {
-      urlRepository = new InMemoryShortUrlRepository();
-    } else {
-      urlRepository = new InMemoryShortUrlRepository();
-    }
-
+    const urlRepository = new InMemoryShortUrlRepository();
     this.services.set('app.url.repository', urlRepository);
   }
 
   private configKeyGenerator(env: string) {
-    let keyGenerator: KeyGenerator;
-    if (env === 'test') {
-      keyGenerator = new Base62DecoratorKeyGenerator(
-        new SnowflakeKeyGenerator()
-      );
-    } else {
-      keyGenerator = new Base62DecoratorKeyGenerator(
-        new SnowflakeKeyGenerator()
-      );
-    }
+    const keyGenerator = new Base62DecoratorKeyGenerator(
+      new SnowflakeKeyGenerator()
+    );
 
     this.services.set('app.url.key-generator', keyGenerator);
   }
