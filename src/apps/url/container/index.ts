@@ -1,6 +1,9 @@
 import { InMemoryShortUrlRepository } from '../../../contexts/url/infrastructure/persistence/in-memory-short-url-repository';
 import { Base62DecoratorKeyGenerator } from '../../../contexts/url/infrastructure/key-generator/base62-decorator-key-generator';
 import { SnowflakeKeyGenerator } from '../../../contexts/url/infrastructure/key-generator/snowflake-key-generator';
+import { MongoShortUrlRepository } from '../../../contexts/url/infrastructure/persistence/mongo/mongo-short-url-repository';
+import { MongoClientFactory } from '../../../contexts/url/infrastructure/persistence/mongo/mongo-client-factory';
+import { ShortUrlRepository } from '../../../contexts/url/domain/short-url/short-url-repository';
 
 class Container {
   services: Map<string, any> = new Map();
@@ -13,8 +16,22 @@ class Container {
   }
 
   private configRepository() {
-    const urlRepository = new InMemoryShortUrlRepository();
-    this.services.set('app.url.repository', urlRepository);
+    const inMemoryShortUrlRepository = new InMemoryShortUrlRepository();
+    let shortUrlRepository: ShortUrlRepository;
+
+    if (process.env.NODE_ENV === 'test') {
+      shortUrlRepository = new InMemoryShortUrlRepository();
+    } else {
+      shortUrlRepository = new MongoShortUrlRepository(
+        MongoClientFactory.createClient('short-url', {
+          url:
+            process.env.MONGO_URL || 'mongodb://localhost:27017/url-shortener'
+        })
+      );
+    }
+
+    this.services.set('app.url.repository', shortUrlRepository);
+    this.services.set('app.url.cache-repository', inMemoryShortUrlRepository);
   }
 
   private configKeyGenerator(env: string) {
