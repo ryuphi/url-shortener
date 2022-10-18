@@ -20,28 +20,30 @@ class Container {
   }
 
   private configRepository() {
-    const inMemoryShortUrlRepository = new InMemoryShortUrlRepository();
     let shortUrlRepository: ShortUrlRepository;
+    let cachedShortUrlRepository: CachedShortUrlRepository;
 
     if (process.env.NODE_ENV === 'test') {
-      shortUrlRepository = new CachedShortUrlRepository(
-        new InMemoryShortUrlRepository(),
+      shortUrlRepository = new InMemoryShortUrlRepository();
+      cachedShortUrlRepository = new CachedShortUrlRepository(
+        shortUrlRepository,
         new SimpleCacheClient<ShortUrl>()
       );
     } else {
-      shortUrlRepository = new CachedShortUrlRepository(
-        new MongoShortUrlRepository(
-          MongoClientFactory.createClient('short-url', {
-            url:
-              process.env.MONGO_URL || 'mongodb://localhost:27017/url-shortener'
-          })
-        ),
+      shortUrlRepository = new MongoShortUrlRepository(
+        MongoClientFactory.createClient('short-url', {
+          url:
+            process.env.MONGO_URL || 'mongodb://localhost:27017/url-shortener'
+        })
+      );
+      cachedShortUrlRepository = new CachedShortUrlRepository(
+        shortUrlRepository,
         new RedisCacheClient<ShortUrl>(data => ShortUrl.fromJSON(data))
       );
     }
 
     this.services.set('app.url.repository', shortUrlRepository);
-    this.services.set('app.url.cache-repository', inMemoryShortUrlRepository);
+    this.services.set('app.url.cached-repository', cachedShortUrlRepository);
   }
 
   private configKeyGenerator(env: string) {
