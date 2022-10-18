@@ -5,6 +5,8 @@ logs/
 data
 test-results.xml
 coverage
+.data
+
 
 .fleet
 .idea
