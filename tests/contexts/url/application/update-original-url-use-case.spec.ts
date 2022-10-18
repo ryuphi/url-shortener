@@ -2,16 +2,26 @@ import { ShortUrl } from '../../../../src/contexts/url/domain/short-url/short-ur
 import { InMemoryShortUrlRepository } from '../../../../src/contexts/url/infrastructure/persistence/in-memory/in-memory-short-url-repository';
 import { ShortUrlRepository } from '../../../../src/contexts/url/domain/short-url/short-url-repository';
 import { UpdateOriginalUrlUseCase } from '../../../../src/contexts/url/application/update-original-url-use-case';
+import { CachedShortUrlRepository } from '../../../../src/contexts/url/infrastructure/persistence/in-memory/cached-short-url-repository';
+import {
+  CacheClient,
+  SimpleCacheClient
+} from '../../../../src/contexts/url/infrastructure/persistence/cache/cache-client';
 
 describe('UpdateOriginalUrlUseCase', () => {
   let useCase: UpdateOriginalUrlUseCase;
   let repository: ShortUrlRepository;
+  let shortUrlCacheClient: CacheClient<ShortUrl>;
   let cachedRepository: ShortUrlRepository;
 
   beforeEach(() => {
     repository = new InMemoryShortUrlRepository();
-    cachedRepository = new InMemoryShortUrlRepository();
-    useCase = new UpdateOriginalUrlUseCase(repository, cachedRepository);
+    shortUrlCacheClient = new SimpleCacheClient<ShortUrl>();
+    cachedRepository = new CachedShortUrlRepository(
+      repository,
+      shortUrlCacheClient
+    );
+    useCase = new UpdateOriginalUrlUseCase(cachedRepository);
   });
 
   it('should update the original url of a short url', async () => {

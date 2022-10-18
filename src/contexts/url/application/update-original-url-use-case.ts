@@ -6,10 +6,7 @@ export type UpdateOriginalUrlDto = {
 };
 
 export class UpdateOriginalUrlUseCase {
-  constructor(
-    private readonly shortUrlRepository: ShortUrlRepository,
-    private readonly cachedShortUrlRepository?: ShortUrlRepository
-  ) {}
+  constructor(private readonly shortUrlRepository: ShortUrlRepository) {}
 
   async execute(key: string, changedDto: UpdateOriginalUrlDto): Promise<void> {
     const shortUrl = await this.shortUrlRepository.findByKey(key);
@@ -31,9 +28,5 @@ export class UpdateOriginalUrlUseCase {
     }
 
     await this.shortUrlRepository.save(shortUrl);
-
-    if (this.cachedShortUrlRepository) {
-      await this.cachedShortUrlRepository.save(shortUrl);
-    }
   }
 }
