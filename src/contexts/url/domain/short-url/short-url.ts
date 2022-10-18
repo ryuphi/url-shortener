@@ -18,4 +18,13 @@ export class ShortUrl {
   enable() {
     this.enabled = true;
   }
+
+  static fromJSON(json: string) {
+    const serialized = JSON.parse(json);
+    return new ShortUrl(
+      serialized.key,
+      serialized.originalUrl,
+      serialized.enabled
+    );
+  }
 }

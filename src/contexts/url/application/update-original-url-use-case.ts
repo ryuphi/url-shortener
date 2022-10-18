@@ -9,24 +9,24 @@ export class UpdateOriginalUrlUseCase {
   constructor(private readonly shortUrlRepository: ShortUrlRepository) {}
 
   async execute(key: string, changedDto: UpdateOriginalUrlDto): Promise<void> {
-    const shortUrl = await this.shortUrlRepository.findByKey(key);
+    const shortUrlFound = await this.shortUrlRepository.findByKey(key);
 
-    if (!shortUrl) {
+    if (!shortUrlFound) {
       throw new Error('Short url not found');
     }
 
     if (changedDto.originalUrl) {
-      shortUrl.changeOriginalUrl(changedDto.originalUrl);
+      shortUrlFound.changeOriginalUrl(changedDto.originalUrl);
     }
 
     if (changedDto.enabled !== undefined && !changedDto.enabled) {
-      shortUrl.disable();
+      shortUrlFound.disable();
     }
 
     if (changedDto.enabled !== undefined && changedDto.enabled) {
-      shortUrl.enable();
+      shortUrlFound.enable();
     }
 
-    await this.shortUrlRepository.save(shortUrl);
+    await this.shortUrlRepository.save(shortUrlFound);
   }
 }

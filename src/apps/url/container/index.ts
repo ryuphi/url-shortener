@@ -7,6 +7,7 @@ import { ShortUrlRepository } from '../../../contexts/url/domain/short-url/short
 import { CachedShortUrlRepository } from '../../../contexts/url/infrastructure/persistence/in-memory/cached-short-url-repository';
 import { SimpleCacheClient } from '../../../contexts/url/infrastructure/persistence/cache/cache-client';
 import { ShortUrl } from '../../../contexts/url/domain/short-url/short-url';
+import { RedisCacheClient } from '../../../contexts/url/infrastructure/persistence/cache/redis-cache-client';
 
 class Container {
   services: Map<string, any> = new Map();
@@ -35,7 +36,7 @@ class Container {
               process.env.MONGO_URL || 'mongodb://localhost:27017/url-shortener'
           })
         ),
-        new SimpleCacheClient<ShortUrl>()
+        new RedisCacheClient<ShortUrl>(data => ShortUrl.fromJSON(data))
       );
     }
 
