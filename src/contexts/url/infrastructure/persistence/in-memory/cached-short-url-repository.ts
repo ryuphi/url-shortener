@@ -19,7 +19,7 @@ export class CachedShortUrlRepository extends DecoratorShortUrlRepository {
       return cachedShortUrl;
     }
 
-    const shortUrl = await this.shortUrlRepository.findByKey(key);
+    const shortUrl = await super.findByKey(key);
 
     if (shortUrl) {
       await this.cache.set(key, shortUrl);
@@ -29,7 +29,7 @@ export class CachedShortUrlRepository extends DecoratorShortUrlRepository {
   }
 
   async save(shortUrl: ShortUrl): Promise<void> {
-    await this.shortUrlRepository.save(shortUrl);
+    await super.save(shortUrl);
     await this.cache.set(shortUrl.key, shortUrl);
   }
 }

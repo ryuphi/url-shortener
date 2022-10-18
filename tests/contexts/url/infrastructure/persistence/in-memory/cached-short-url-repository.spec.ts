@@ -26,7 +26,7 @@ describe('CachedShortUrlRepository', () => {
     );
 
     await cachedRepository.save(shortUrl);
-    const shortUrlFound = await cachedRepository.findByKey(shortUrl.key);
+    const shortUrlFound = await cacheClient.get(shortUrl.key);
     expect(shortUrlFound).toBe(shortUrl);
   });
 
@@ -37,11 +37,17 @@ describe('CachedShortUrlRepository', () => {
       true
     );
 
+    await cacheClient.set(shortUrl.key, shortUrl);
+
+    shortUrl.changeOriginalUrl('https://www.google.com/search?q=puppies');
+    shortUrl.disable();
+
     await cachedRepository.save(shortUrl);
-    await cachedRepository.save(
-      new ShortUrl(shortUrl.key, shortUrl.originalUrl, false)
-    );
-    const shortUrlFound = await cachedRepository.findByKey(shortUrl.key);
+
+    const shortUrlFound = await cacheClient.get(shortUrl.key);
     expect(shortUrlFound?.enabled).toBe(false);
+    expect(shortUrlFound?.originalUrl).toBe(
+      'https://www.google.com/search?q=puppies'
+    );
   });
 });
