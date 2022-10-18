@@ -36,8 +36,7 @@ export abstract class MongoRepository<T> {
 
 export class MongoShortUrlRepository
   extends MongoRepository<ShortUrl>
-  implements ShortUrlRepository
-{
+  implements ShortUrlRepository {
   async save(shortUrl: ShortUrl): Promise<void> {
     return this.persist(shortUrl.key, shortUrl);
   }

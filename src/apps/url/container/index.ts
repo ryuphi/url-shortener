@@ -48,7 +48,12 @@ class Container {
 
   private configKeyGenerator(env: string) {
     const keyGenerator = new Base62DecoratorKeyGenerator(
-      new SnowflakeKeyGenerator()
+      new SnowflakeKeyGenerator(
+        process.env.WORKER_ID ? parseInt(process.env.WORKER_ID) : undefined,
+        process.env.DATACENTER_ID
+          ? parseInt(process.env.DATACENTER_ID)
+          : undefined
+      )
     );
 
     this.services.set('app.url.key-generator', keyGenerator);
