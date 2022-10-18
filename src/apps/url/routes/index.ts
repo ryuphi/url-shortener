@@ -8,8 +8,10 @@ import { FindOriginalUrlUseCase } from '../../../contexts/url/application/find-o
 import {
   CreateShortUrlRequest,
   CreateShortUrlResponse,
-  FindOriginalUrlRequest
+  FindOriginalUrlRequest,
+  UpdateShortUrlRequest
 } from './types';
+import { UpdateOriginalUrlUseCase } from '../../../contexts/url/application/update-original-url-use-case';
 
 export const router = Router();
 
@@ -45,5 +47,21 @@ router.get('/:key', async (req: FindOriginalUrlRequest, res: Response) => {
   if (originalUrl) {
     return res.redirect(originalUrl);
   }
+  return res.status(httpStatus.NOT_FOUND).send();
+});
+
+router.put('/:key', async (req: UpdateShortUrlRequest, res: Response) => {
+  const { key } = req.params;
+
+  const shortUrl = await shortUrlRepository.findByKey(key);
+
+  if (shortUrl) {
+    const updateOriginalUrlUseCase = new UpdateOriginalUrlUseCase(
+      shortUrlRepository
+    );
+    await updateOriginalUrlUseCase.execute(key, req.body);
+    return res.status(httpStatus.OK).send();
+  }
+
   return res.status(httpStatus.NOT_FOUND).send();
 });
