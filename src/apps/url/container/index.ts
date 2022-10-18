@@ -4,6 +4,9 @@ import { SnowflakeKeyGenerator } from '../../../contexts/url/infrastructure/key-
 import { MongoShortUrlRepository } from '../../../contexts/url/infrastructure/persistence/mongo/mongo-short-url-repository';
 import { MongoClientFactory } from '../../../contexts/url/infrastructure/persistence/mongo/mongo-client-factory';
 import { ShortUrlRepository } from '../../../contexts/url/domain/short-url/short-url-repository';
+import { CachedShortUrlRepository } from '../../../contexts/url/infrastructure/persistence/in-memory/cached-short-url-repository';
+import { SimpleCacheClient } from '../../../contexts/url/infrastructure/persistence/cache/cache-client';
+import { ShortUrl } from '../../../contexts/url/domain/short-url/short-url';
 
 class Container {
   services: Map<string, any> = new Map();
@@ -20,7 +23,10 @@ class Container {
     let shortUrlRepository: ShortUrlRepository;
 
     if (process.env.NODE_ENV === 'test') {
-      shortUrlRepository = new InMemoryShortUrlRepository();
+      shortUrlRepository = new CachedShortUrlRepository(
+        new InMemoryShortUrlRepository(),
+        new SimpleCacheClient<ShortUrl>()
+      );
     } else {
       shortUrlRepository = new MongoShortUrlRepository(
         MongoClientFactory.createClient('short-url', {
