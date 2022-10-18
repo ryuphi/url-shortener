@@ -1,5 +1,6 @@
 import { InMemoryShortUrlRepository } from '../../../../src/contexts/url/infrastructure/persistence/in-memory/in-memory-short-url-repository';
 import { FindOriginalUrlUseCase } from '../../../../src/contexts/url/application/find-original-url-use-case';
+import { ShortUrl } from '../../../../src/contexts/url/domain/short-url/short-url';
 
 describe('Feature: find original url', () => {
   it('should find a original url by key', async () => {
@@ -11,7 +12,7 @@ describe('Feature: find original url', () => {
       key: hashKey,
       originalUrl,
       enabled: true
-    });
+    } as ShortUrl);
 
     const findUseCase = new FindOriginalUrlUseCase(repository);
 
@@ -38,7 +39,7 @@ describe('Feature: find original url', () => {
       key: hashKey,
       originalUrl,
       enabled: true
-    });
+    } as ShortUrl);
 
     const cachedRepository = new InMemoryShortUrlRepository();
 
@@ -67,7 +68,7 @@ describe('Feature: find original url', () => {
       key: hashKey,
       originalUrl,
       enabled: true
-    });
+    } as ShortUrl);
 
     const findUseCase = new FindOriginalUrlUseCase(
       repository,

@@ -2,8 +2,20 @@ type ShortKey = string;
 
 export class ShortUrl {
   constructor(
-    public readonly key: ShortKey,
-    public readonly originalUrl: string,
-    public readonly enabled: boolean
+    public key: ShortKey,
+    public originalUrl: string,
+    public enabled: boolean
   ) {}
+
+  changeOriginalUrl(originalUrl: string) {
+    this.originalUrl = originalUrl;
+  }
+
+  disable() {
+    this.enabled = false;
+  }
+
+  enable() {
+    this.enabled = true;
+  }
 }
