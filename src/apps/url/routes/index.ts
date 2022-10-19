@@ -57,17 +57,14 @@ router.get('/:key', async (req: FindOriginalUrlRequest, res: Response) => {
 });
 
 router.put('/:key', async (req: UpdateShortUrlRequest, res: Response) => {
-  const { key } = req.params;
-
-  const shortUrl = await shortUrlRepository.findByKey(key);
-
-  if (shortUrl) {
+  try {
+    const { key } = req.params;
     const updateOriginalUrlUseCase = new UpdateOriginalUrlUseCase(
       cachedShortUrlRepository
     );
     await updateOriginalUrlUseCase.execute(key, req.body);
     return res.status(httpStatus.OK).send();
+  } catch (e) {
+    return res.status(httpStatus.NOT_FOUND).send();
   }
-
-  return res.status(httpStatus.NOT_FOUND).send();
 });
