@@ -80,6 +80,7 @@ estadísticas/métricas de acceso de las url.
 Acá se puede utilizar Kafka o NATS.
 
 Registros que se pueden ir guardando en el sistema de mensajería:
+
 - Registro de cada vez que se resuelve una url acortada.
 - Registro de cada vez que se modifica la url original de una url acortada.
 - Registro de cada vez que se habilita o deshabilita una url acortada.
@@ -89,7 +90,8 @@ Cada uno de estos registros/eventos se pueden ir guardando en un tópico.
 
 ## Generación del hash/key
 
-Para ver el detalle de la generación del hash, ver [acá](./docs/generar-shorl-url.md)
+Para ver el detalle de la generación del hash,
+ver [acá](./docs/generar-shorl-url.md)
 
 ## API
 
@@ -141,4 +143,30 @@ PUT http://localhost:5001/hzxNpvI0o0
 {
   "enabled": false
 }
+```
+
+## Ejecución
+
+### Requisitos
+
+- NodeJS >= v14.x.x
+- Docker & docker-compose (recomendado para levantar la base de datos y la
+  caché)
+
+### Instalación de dependencias
+
+```bash
+npm install
+```
+
+### Levantar la base de datos y la caché
+
+```bash
+docker-compose up -d
+```
+
+### Levantar la aplicación
+
+```bash
+npm start
 ```
