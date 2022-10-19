@@ -93,6 +93,38 @@ Cada uno de estos registros/eventos se pueden ir guardando en un tópico.
 Para ver el detalle de la generación del hash,
 ver [acá](./docs/generar-shorl-url.md)
 
+## Ejecución
+
+### Requisitos
+
+- NodeJS >= v14.x.x
+- Docker & docker-compose (recomendado para levantar la base de datos y la
+  caché)
+
+### Instalación de dependencias
+
+```bash
+npm install
+```
+
+### Levantar la base de datos y la caché
+
+```bash
+docker-compose up -d
+```
+
+### Levantar la aplicación
+
+```bash
+npm start
+```
+
+### Ejecutar los tests
+
+```bash
+npm test
+```
+
 ## API
 
 La aplicación expone una API REST para poder interactuar con el sistema.
@@ -145,35 +177,141 @@ PUT http://localhost:5001/hzxNpvI0o0
 }
 ```
 
-## Ejecución
 
-### Requisitos
+## Estructura del proyecto
 
-- NodeJS >= v14.x.x
-- Docker & docker-compose (recomendado para levantar la base de datos y la
-  caché)
+El proyecto fue creado dentro de un monolito con una arquitectura hexagonal.
 
-### Instalación de dependencias
-
-```bash
-npm install
+### Estructura de carpetas
+```
+.
+├── README.md
+├── arquitectura.png
+├── coverage
+├── data
+├── docker-compose.yml
+├── docs
+├── jest.config.js
+├── package-lock.json
+├── package.json
+├── src
+├── tests
+├── tsconfig.json
+└── tslint.json
 ```
 
-### Levantar la base de datos y la caché
+En la raíz de la carpeta del proyecto se encuentran principalmente los archivos
+de configuraciones
+de las distintas herramientas, como linting, testing, etc.
 
-```bash
-docker-compose up -d
+#### src
+
+En la carpeta `src` es donde vive el código realizado para el proyecto. Acá
+encontramos principalmente 2 carpetas: `apps` y `contexts`.
+
+```
+.
+└── src
+    ├── apps
+    └── contexts
 ```
 
-### Levantar la aplicación
 
-```bash
-npm start
+##### src/apps
+En la carpeta `apps` las aplicaciones donde se expone la
+lógica de negocio. En este caso es donde se aloja la api REST.
+
+```
+src/apps
+└── url
+    ├── container
+    │   └── index.ts
+    ├── routes
+    │   ├── index.ts
+    │   └── types.ts
+    ├── server.ts
+    ├── start.ts
+    └── url-app.ts
 ```
 
-### Ejecutar los tests
+##### src/contexts
 
-```bash
-npm test
+En la carpeta `contexts` es donde se encuentran los distintos contextos de
+negocio. En este caso tenemos solo 1 contexto, el de la url acortada.
+
 ```
+src/contexts
+└── url
+    ├── application
+    │   ├── create-short-url-use-case.ts
+    │   ├── find-original-url-use-case.ts
+    │   └── update-original-url-use-case.ts
+    ├── domain
+    │   ├── key-generator
+    │   │   ├── key-generator-decorator.ts
+    │   │   └── key-generator.ts
+    │   └── short-url
+    │       ├── short-url-repository.ts
+    │       └── short-url.ts
+    └── infrastructure
+        ├── key-generator
+        │   ├── base62-decorator-key-generator.ts
+        │   ├── counter-key-generator.ts
+        │   ├── simple-decorator-key-generator.ts
+        │   └── snowflake-key-generator.ts
+        └── persistence
+            ├── cache
+            │   ├── cache-client.ts
+            │   └── redis-cache-client.ts
+            ├── in-memory
+            │   ├── cached-short-url-repository.ts
+            │   └── in-memory-short-url-repository.ts
+            └── mongo
+                ├── mongo-client-factory.ts
+                └── mongo-short-url-repository.ts
+```
+
+##### src/contexts/url/application
+```
+src/contexts/url/application
+├── create-short-url-use-case.ts
+├── find-original-url-use-case.ts
+└── update-original-url-use-case.ts
+```
+Acá nos encontramos con la lógica de negocio de la aplicación. En este caso los casos de uso en si.
+
+- `create-short-url-use-case.ts`: Caso de uso para crear una url acortada.
+- `find-original-url-use-case.ts`: Caso de uso para encontrar la url original de una url acortada.
+- `update-original-url-use-case.ts`: Caso de uso para modificar la url original de una url acortada.
+
+
+#### tests
+
+```
+tests
+├── apps
+│   └── url
+│       └── features
+│           ├── create-short-url.spec.ts
+│           ├── find-original-url.spec.ts
+│           └── update-short-url.spec.ts
+└── contexts
+    └── url
+        ├── application
+        │   ├── create-short-url-use-case.spec.ts
+        │   ├── find-long-url-use-case.spec.ts
+        │   └── update-original-url-use-case.spec.ts
+        ├── domain
+        │   └── key-generator-decorator.spec.ts
+        └── infrastructure
+            ├── cache
+            │   └── cache-client.spec.ts
+            ├── key-generator
+            │   └── counter-key-generator.spec.ts
+            └── persistence
+                └── in-memory
+                    ├── cached-short-url-repository.spec.ts
+                    └── in-memory-short-url-repository.spec.ts
+```
+
 
