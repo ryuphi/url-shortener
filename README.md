@@ -256,7 +256,7 @@ npm install
 ### Levantar la base de datos y la caché
 
 ```bash
-docker-compose up -d
+docker-compose up -d mongodb redis
 ```
 
 ### Levantar la aplicación
@@ -269,6 +269,12 @@ npm start
 
 ```bash
 npm test
+```
+
+### Con Docker
+También puedes levantar todo con docker-compose (api, mongo, redis)
+```bash
+docker-compose up -d
 ```
 
 ## API
