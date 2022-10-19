@@ -170,3 +170,10 @@ docker-compose up -d
 ```bash
 npm start
 ```
+
+### Ejecutar los tests
+
+```bash
+npm test
+```
+
