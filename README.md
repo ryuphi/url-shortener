@@ -90,8 +90,154 @@ Cada uno de estos registros/eventos se pueden ir guardando en un tópico.
 
 ## Generación del hash/key
 
-Para ver el detalle de la generación del hash,
-ver [acá](./docs/generar-shorl-url.md)
+Como identificador único se decidió utilizar un hash en base 62 (letras y
+números). Este hash se genera codificando un número en base 62.
+
+El número base utilizado es un identificador único basado en el timestamp
+utilizando un
+algoritmo inspirado
+en [Twitter Snowflake](https://blog.twitter.com/2010/announcing-snowflake) que
+se encarga de generar un
+número único para cada registro.
+
+El identificador generado tiene una estructura similar a la siguiente
+
+![snowflake-uid](snowflake-uid.png)
+
+Aunque la cantidad de bits utilizados es menor.
+
+Para la implementación del código se utilizó la
+librería [Snowflake-UUID](https://github.com/rakheyl/snowflake-uuid) para
+realizar el cálculo del identificador snowflake.
+
+Esto está generando hash únicos similares al siguiente después de hacer la
+codificación en base 62: `hxT2nmtIrK`
+
+Si se necesitarán menos caracteres para el hash, se puede realizar una
+implementación
+personalizada de la librería o ir ajustando los parámetros de la librería.
+
+### Ventajas
+
+- No se requiere una base de datos para almacenar los identificadores o un
+  contador
+  global.
+- No se tiene que preocupar por la cantidad de registros que se generen. La
+  operación de generar un identificador es constante.
+
+### Desventajas
+
+- El identificador generado es predecible. Si se conoce el timestamp del
+  registro se puede predecir el identificador generado.
+- Se requiere de pasar correctamente los parámetros que entregan la
+  característica
+  de único del identificador. Como lo son el worker id y el datacenter id (en la
+  librería utilizan el datacenter id en vez del thread id que se ve en la
+  imagen).
+
+### Opciones que se consideraron
+
+Las siguientes opciones se tomaron en cuenta para la generación del hash:
+
+#### Generar el hash de manera aleatoria
+
+- Se generan X caracteres aleatorios y se verifica que no exista en la base de
+  datos.
+- Si existe, se vuelve a generar el hash.
+- Si no existe, se guarda en la base de datos.
+
+##### Ventajas:
+
+- Es la opción más sencilla de implementar.
+- No requiere de un algoritmo de hash o enconding.
+
+##### Desventajas:
+
+- Los costos de generar un hash único aumentan a medida que la base de datos
+  crece.
+- Los tiempos de respuesta aumentan a medida que la base de datos crece.
+- Cada vez cuesta más encontrar un hash único.
+
+##### Escalar esta opción
+
+Para escalar esta opción se puede mover esta generación de hash a un servicio
+aparte que se encargue de generar los hashes únicos. Este servicio puede ser
+escalado de manera independiente a la base de datos.
+
+Por ejemplo podría pre-calcular los hashes y guardarlos en una base de datos.
+Luego cuando se le consulté por un hash, se le devolvería el hash que se
+encuentre disponible en la base de datos de hashes pre-calculados.
+
+El tema es que no evitas el problema de que cada vez cuesta más encontrar un
+hash único. Cada vez es más costoso encontrar un hash único. Necesitas tener
+poder de cómputo para generar los hashes aunque lo hagas fuera del hilo de
+ejecución principal y el usuario ni se entere.
+
+## Base de datos: elección
+
+### Consideraciones generales
+
+* Se espera una gran cantidad de volumen de datos, operaciones de lectura y
+  escritura que se esperan.
+* Las operaciones de lectura son más comunes en comparación con las operaciones
+  de escritura. No es extraño encontrar relaciones tipo 100:1 (100 lecturas por
+  cada escritura).
+* Debe ser escalable y tolerante a fallos.
+* Altamente disponible.
+
+### SQL vs NoSQL
+
+Si bien se puede utilizar SQL para almacenar datos, no es la mejor opción para
+el caso de uso de la aplicación. La razón es que la aplicación no tendrá
+consultas complejas donde se requiera un lenguaje de consulta estructurado.
+Además, la aplicación no tendrá relaciones entre las entidades, por lo que no se
+requiere un modelo relacional y si las relaciones existen, no deberían ser
+complejas.
+
+Por otro lado, para cumplir con las consideraciones generales, como la alta
+disponibilidad y escalabilidad, una base de datos NoSQL es la mejor opción.
+Esto se debe a que las bases de datos NoSQL están diseñadas para escalar de
+forma horizontal de manera sencilla.
+
+La gran cantidad de datos y el alto volumen de lectura, también es otro punto a
+favor por el cual se debe utilizar una base de datos NoSQL.
+
+Opciones comunes para bases de datos NoSQL son: **MongoDB** y **Cassandra**.
+
+### Comparativa: Mongodb vs Cassandra
+
+Ambas bases de datos son buenas opciones para el sistema, pero hacemos elección
+de **Cassandra** para un ambiente productivo (para el desarrollo se utilizó
+**MongoDB** por facilidad).
+
+La comparativa se realiza bajo los siguientes términos: **Disponibilidad** y
+**Escalabilidad**
+
+#### Disponibilidad
+
+**Mongodb** tiene un solo master node para controlar los demás nodos (slave
+nodes). Si el nodo master se cae, toma su tiempo el poder promover otro node a
+master node. Esto puede causar que la aplicación no pueda escribir datos en la
+base de datos.
+
+Por otro lado, __Cassandra__ no tiene master nodes, lo que significa que no hay
+un solo punto de falla. Si un nodo se cae, el cluster puede seguir funcionando
+sin problemas. Cualquiera de los nodos puede ser utilizado para leer y escribir
+datos. Luego el cluster se encarga de replicar los datos en los demás nodos.
+
+#### Escalabilidad (en escritura y lectura)
+
+En temas de escritura al no tener un master node donde recaiga la escritura,
+**Cassandra** nos permite tener una mejor escalabilidad en cuanto a escritura en
+comparación a **MongoDB**
+que solo tiene un master node por réplica set.
+
+En cuanto a lectura, __MongoDB__ debería de tener mejor escalabilidad si
+necesitáramos realizar queries más complejas,
+esto por las opciones que entrega sobre índices secundarios y elementos
+anidados. Dado que en este sistema las queries
+solo se llevarán a cabo a través del short url (key generada), podemos
+prescindir de estas capacidades.
 
 ## Ejecución
 
@@ -177,12 +323,12 @@ PUT http://localhost:5001/hzxNpvI0o0
 }
 ```
 
-
 ## Estructura del proyecto
 
 El proyecto fue creado dentro de un monolito con una arquitectura hexagonal.
 
 ### Estructura de carpetas
+
 ```
 .
 ├── README.md
@@ -216,8 +362,8 @@ encontramos principalmente 2 carpetas: `apps` y `contexts`.
     └── contexts
 ```
 
-
 ##### src/apps
+
 En la carpeta `apps` las aplicaciones donde se expone la
 lógica de negocio. En este caso es donde se aloja la api REST.
 
@@ -272,18 +418,22 @@ src/contexts
 ```
 
 ##### src/contexts/url/application
+
 ```
 src/contexts/url/application
 ├── create-short-url-use-case.ts
 ├── find-original-url-use-case.ts
 └── update-original-url-use-case.ts
 ```
-Acá nos encontramos con la lógica de negocio de la aplicación. En este caso los casos de uso en si.
+
+Acá nos encontramos con la lógica de negocio de la aplicación. En este caso los
+casos de uso en si.
 
 - `create-short-url-use-case.ts`: Caso de uso para crear una url acortada.
-- `find-original-url-use-case.ts`: Caso de uso para encontrar la url original de una url acortada.
-- `update-original-url-use-case.ts`: Caso de uso para modificar la url original de una url acortada.
-
+- `find-original-url-use-case.ts`: Caso de uso para encontrar la url original de
+  una url acortada.
+- `update-original-url-use-case.ts`: Caso de uso para modificar la url original
+  de una url acortada.
 
 #### tests
 
@@ -313,5 +463,3 @@ tests
                     ├── cached-short-url-repository.spec.ts
                     └── in-memory-short-url-repository.spec.ts
 ```
-
-
