@@ -11,9 +11,12 @@
     "npm": ">=6.7.0"
   },
   "scripts": {
-    "start": "NODE_ENV=dev PORT=5001 ts-node-dev --ignore-watch node_modules  ./src/apps/url/start.ts",
+    "dev": "NODE_ENV=dev PORT=5001 ts-node-dev --ignore-watch node_modules  ./src/apps/url/start.ts",
+    "prestart": "npm run build:prod",
+    "start": "NODE_ENV=prod PORT=3000 node ./dist/src/apps/url/start.js",
     "test": "NODE_ENV=test jest",
-    "build": "tsc -p tsconfig.json"
+    "build": "rm -rf dist && tsc -p tsconfig.json",
+    "build:prod": "rm -rf dist && tsc -p tsconfig.json"
   },
   "dependencies": {
     "body-parser": "^1.20.1",
