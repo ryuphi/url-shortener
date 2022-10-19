@@ -93,4 +93,52 @@ Para ver el detalle de la generación del hash, ver [acá](./docs/generar-shorl-
 
 ## API
 
+La aplicación expone una API REST para poder interactuar con el sistema.
 
+### Endpoints
+
+#### Crear una url acortada
+
+```http request
+POST http://localhost:5001
+
+{
+  "url": "https://www.google.cl/search?q=gatos"
+}
+```
+
+#### Resolución de una url acortada
+
+```http request
+GET http://localhost:5001/hzxNpvI0o0
+```
+
+#### Modificar la url original de una url acortada
+
+```http request
+PUT http://localhost:5001/hzxNpvI0o0
+
+{
+  "originalUrl": "https://www.google.com/search?q=perros"
+}
+```
+
+#### Habilitad una url acortada
+
+```http request
+PUT http://localhost:5001/hzxNpvI0o0
+
+{
+  "enabled": true
+}
+```
+
+#### Deshabilitar una url acortada
+
+```http request
+PUT http://localhost:5001/hzxNpvI0o0
+
+{
+  "enabled": false
+}
+```
