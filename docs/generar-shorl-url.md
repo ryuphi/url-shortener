@@ -1,4 +1,4 @@
-# Algoritmo short url
+# Algoritmo para generar el hash
 
 Como identificador único se decidió utilizar un hash en base 62 (letras y
 números). Este hash se genera codificando un número en base 62.
