@@ -70,8 +70,9 @@ class Container {
   private configParams() {
     const port =
       process.env.NODE_ENV === 'test' ? '0' : process.env.PORT || '3000';
+    const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
     this.params.set('app.port', port);
-    this.params.set('app.baseUrl', `http://localhost:${port}`);
+    this.params.set('app.baseUrl', baseUrl);
   }
 }
 
