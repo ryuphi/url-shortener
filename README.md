@@ -272,7 +272,9 @@ npm test
 ```
 
 ### Con Docker
+
 También puedes levantar todo con docker-compose (api, mongo, redis)
+
 ```bash
 docker-compose up -d
 ```
@@ -468,4 +470,58 @@ tests
                 └── in-memory
                     ├── cached-short-url-repository.spec.ts
                     └── in-memory-short-url-repository.spec.ts
+```
+
+## Infra demo gcp
+
+La demo se encuentra desplegada en GCP utilizando **Cloud run**. El siguiente
+diagrama muestra la infraestructura levantada para realizar el despliegue.
+
+![gcp-demo-infra](gcp-demo-infra.png)
+
+- **Cloud Run**: Servicio de GCP para desplegar aplicaciones serverless.
+- **Cloud Build**: Servicio de GCP para realizar el build de la imagen docker.
+- **Memory Store**: Servicio de GCP para almacenar la caché de la aplicación.
+- **Secret Manager**: Servicio de GCP para almacenar las variables de entorno de
+  la aplicación.
+- **MongoDB Atlas**: Servicio de MongoDB para almacenar los datos de la
+  aplicación. La instancia de MongoDB se encuentra en gcp.
+
+## Benchmark
+
+Se realizó una pequeña prueba a la demo desplegada
+utilizando [k6.io](https://k6.io/). El script de prueba se encuentra en el
+archivo `benchmark.k6.js` en la raíz del proyecto.
+
+### Resultados
+
+```
+          /\      |‾‾| /‾‾/   /‾‾/
+     /\  /  \     |  |/  /   /  /
+    /  \/    \    |     (   /   ‾‾\
+   /          \   |  |\  \ |  (‾)  |
+  / __________ \  |__| \__\ \_____/ .io
+
+  execution: local
+     script: benchmark.k6.js
+     output: ---
+
+  scenarios: (100.00%) 1 scenario, 50 max VUs, 1m30s max duration (incl. graceful stop):
+           * my_api_test_1: 1.67 iterations/s for 1m0s (maxVUs: 50, gracefulStop: 30s)
+
+
+running (1m14.9s), 00/50 VUs, 100 complete and 0 interrupted iterations
+my_api_test_1 ✓ [======================================] 00/50 VUs  1m0s  1.67 iters/s
+
+     ✓ status is 201
+     ✓ create < 200ms
+     ✓ status is 302
+     ✓ duration lookup < 10ms
+
+     checks.........................: 100.00% ✓ 20200      ✗ 0
+     create requests................: 100     1.335514/s
+     lookup requests................: 10000   133.551403/s
+
+     http_reqs......................: 10100   134.886917/s
+     http_req_duration..............: avg=154.05ms min=132.54ms med=143.98ms max=3.69s   p(90)=162.5ms  p(95)=183.6ms
 ```
