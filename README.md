@@ -50,8 +50,7 @@ de carga se encarga de redirigir la carga a otro servidor web.
 Para la base de datos se recomienda una base de datos no relacional como
 Cassandra o mongoDB.
 
-Para esta ocasión en producción se recomienda usar Cassandra.
-[Ver los detalles de elección y consideraciones tomadas acá](./docs/base-de-datos.md)
+Para esta ocasión en producción se recomienda usar Cassandra. Para los detalles de la elección revisar [Base de datos: elección](#base-de-datos-elección)
 
 #### Cache servers (servidores de caché)
 
